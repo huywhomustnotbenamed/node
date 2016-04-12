@@ -1,4 +1,4 @@
-var app = angular.module('clone', []);
+var app = angular.module('clone', ['ui.router']);
 
 app.factory('posts', [function(){
   var object = {
@@ -8,7 +8,7 @@ app.factory('posts', [function(){
 }]);
 
 app.controller('mainCtrl', ['$scope', 'posts', function($scope, posts){
-  $scope.posts = posts.posts
+  $scope.posts = posts.posts;
 
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
