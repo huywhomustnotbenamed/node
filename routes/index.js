@@ -50,4 +50,28 @@ router.param('post', function(req, res, next, id) {
   });
 });
 
+router.post('/posts/:post/comments', function(req, res, next) {
+  var comment = new Comment(req.body);
+  comment.post = req.post;
+
+  comment.save(function(err, comment) {
+    if (err) {return next(err); }
+
+    req.post.comments.push(comment);
+    req.post.save(function(err, post) {
+      if (err) { return next(err); }
+
+      res.json(comment);
+    });
+  });
+});
+
+router.put('/posts/:post/coments/:comment/upvote', function(req, res, next) {
+  req.post.comment.upvote(function(err, comment) {
+    if (err) { return next(err); }
+
+    res.json(comment);
+  });
+});
+
 module.exports = router;
