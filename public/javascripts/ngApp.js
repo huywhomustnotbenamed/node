@@ -11,7 +11,7 @@ app.config([
       templateUrl: '/home.html',
       controller:  'mainCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
+        postPromise: ['posts', function(posts) {
           return posts.getAll();
         }]
       }
@@ -21,7 +21,12 @@ app.config([
     .state('posts', {
       url:         '/posts/{id}',
       templateUrl: '/posts.html',
-      controller:  'postsCtrl'
+      controller:  'postsCtrl',
+      resolve: {
+        post: ['$stateParams', 'posts', function($stateParams, posts) {
+          return posts.get($stateParams.id);
+        }]
+      }
     });
 
   $urlRouterProvider.otherwise('home');
@@ -51,10 +56,16 @@ app.factory('posts', ['$http', function($http) {
       });
   };
 
+  object.get = function(id) {
+    return $http.get('/posts/' + id).then(function(res) {
+      return res.data;
+    });
+  };
+
   return object;
 }]);
 
-app.controller('mainCtrl', ['$scope', 'posts', function($scope, posts){
+app.controller('mainCtrl', ['$scope', 'posts', function($scope, posts) {
   $scope.posts = posts.posts;
 
   $scope.addPost = function(){
@@ -67,18 +78,18 @@ app.controller('mainCtrl', ['$scope', 'posts', function($scope, posts){
     $scope.link  = '';
   };
 
-  $scope.incrementUpvotes = function(post){
+  $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
   };
 }]);
 
 app.controller('postsCtrl', [
   '$scope',
-  '$stateParams',
   'posts',
-  function($scope, $stateParams, posts){
+  'post',
+  function($scope, posts, post) {
 
-    $scope.post = posts.posts[$stateParams.id];
+    $scope.post = post;
 
     $scope.addComment = function(){
       if($scope.body === '') { return; }
